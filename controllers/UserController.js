@@ -13,6 +13,10 @@ class UserController
 
             event.preventDefault();
 
+            this.getValues().photo = '';
+
+            this.getPhoto();
+
             this.addNewTableDataIntoTable(this.getValues());
         });
     }
@@ -81,5 +85,23 @@ class UserController
     addZerosToDate(date)
     {
         return (date <= 9) ? '0' + date : date;
+    }
+
+    getPhoto()
+    {
+        let fileReader = new FileReader();
+
+        let elements = [...this.form.elements].filter(element => {
+
+            return (element.name === 'photo') ? element : null;
+
+        });
+        let file = elements[0].files[0];
+
+        fileReader.onload = () => {
+            console.log(fileReader.result);
+        };
+
+        fileReader.readAsDataURL(file);
     }
 }
