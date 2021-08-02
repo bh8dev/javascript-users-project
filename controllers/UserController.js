@@ -20,6 +20,11 @@ class UserController
     getValues()
     {
         let user = {};
+        
+        // OR
+        /* [...this.form.elements].forEach((field, index) => {
+            // ...
+        }); */
 
         for (const field of this.form.elements)
         {
