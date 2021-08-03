@@ -13,11 +13,18 @@ class UserController
 
             event.preventDefault();
 
-            this.getValues().photo = '';
+            let values = this.getValues();
 
-            this.getPhoto();
+            this.getPhoto().then(result => {
 
-            this.addNewTableDataIntoTable(this.getValues());
+                this.getValues().photo = result;
+                this.addNewTableDataIntoTable(this.getValues());
+
+            }).catch((err) => {
+
+                console.error(err);
+
+            });
         });
     }
 
@@ -25,13 +32,7 @@ class UserController
     {
         let user = {};
         
-        // OR
-        /* [...this.form.elements].forEach((field, index) => {
-            // ...
-        }); */
-
-        for (const field of this.form.elements)
-        {
+        [...this.form.elements].forEach((field, index) => {
 
             if (field.name === 'gender')
             {
@@ -45,7 +46,7 @@ class UserController
                 user[field.name] = field.value;
             }
 
-        }
+        });
     
         return new User(
             user.name,
@@ -68,7 +69,7 @@ class UserController
         `
             <tr>
                 <td>
-                    <img src="dist/img/user1-128x128.jpg" alt="User Image" class="img-circle img-sm">
+                    <img src="${user.photo}" alt="User Image" class="img-circle img-sm">
                 </td>
                 <td>${user.name}</td>
                 <td>${user.email}</td>
@@ -89,19 +90,30 @@ class UserController
 
     getPhoto()
     {
-        let fileReader = new FileReader();
+        return new Promise((resolve, reject) => {
 
-        let elements = [...this.form.elements].filter(element => {
+            let fileReader = new FileReader();
 
-            return (element.name === 'photo') ? element : null;
+            let elements = [...this.form.elements].filter(element => {
 
+                if(element.name === 'photo')
+                {
+                    return element;
+                }
+
+            });
+
+            let file = elements[0].files[0];
+
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+            };
+
+            fileReader.onerror = (event) => {
+                reject(event);
+            };
+
+            fileReader.readAsDataURL(file);
         });
-        let file = elements[0].files[0];
-
-        fileReader.onload = () => {
-            console.log(fileReader.result);
-        };
-
-        fileReader.readAsDataURL(file);
     }
 }
