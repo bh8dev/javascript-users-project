@@ -17,12 +17,12 @@ class UserController
 
             this.getPhoto().then(result => {
 
-                this.getValues().photo = result;
-                this.addNewTableDataIntoTable(this.getValues());
+                values.photo = result;
+                this.addNewTableDataIntoTable(values);
 
-            }).catch((err) => {
+            }).catch((e) => {
 
-                console.error(err);
+                console.error(e);
 
             });
         });
@@ -109,8 +109,8 @@ class UserController
                 resolve(fileReader.result);
             };
 
-            fileReader.onerror = (event) => {
-                reject(event);
+            fileReader.onerror = (e) => {
+                reject(e);
             };
 
             fileReader.readAsDataURL(file);
