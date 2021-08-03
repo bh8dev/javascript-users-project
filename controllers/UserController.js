@@ -41,6 +41,10 @@ class UserController
                     user[field.name] = field.value;
                 }
             }
+            else if(field.name === 'admin')
+            {
+                user[field.name] = field.checked;
+            }
             else
             {
                 user[field.name] = field.value;
@@ -62,10 +66,11 @@ class UserController
 
     addNewTableDataIntoTable(user)
     {
+        let tr = document.createElement('tr');
         let date = new Date();
         let today = this.addZerosToDate(date.getDay()) + '/' + this.addZerosToDate((date.getMonth() + 1)) + '/' + date.getFullYear();
     
-        this.tableTbody.innerHTML = 
+        tr.innerHTML = 
         `
             <tr>
                 <td>
@@ -73,7 +78,7 @@ class UserController
                 </td>
                 <td>${user.name}</td>
                 <td>${user.email}</td>
-                <td>${user.admin}</td>
+                <td>${(user.admin) ? 'Sim' : 'Não'}</td>
                 <td>${(today <= 9) ? '0' + today : today}</td>
                 <td>
                     <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
@@ -81,6 +86,7 @@ class UserController
                 </td>
             </tr>
         `;
+        this.tableTbody.appendChild(tr);
     }
 
     addZerosToDate(date)
@@ -113,7 +119,16 @@ class UserController
                 reject(e);
             };
 
-            fileReader.readAsDataURL(file);
+            if(file)
+            {
+
+                fileReader.readAsDataURL(file);
+            }
+            else
+            {
+                resolve('dist/img/boxed-bg.jpg');
+            }
+
         });
     }
 }
