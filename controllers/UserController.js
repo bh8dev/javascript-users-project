@@ -13,6 +13,9 @@ class UserController
 
             event.preventDefault();
 
+            let btnSubmit = this.form.querySelector("[type='submit']");
+            btnSubmit.disabled = true;
+
             let values = this.getValues();
 
             this.getPhoto().then(result => {
@@ -20,9 +23,12 @@ class UserController
                 values.photo = result;
                 this.addNewTableDataIntoTable(values);
 
-            }).catch((e) => {
+                this.form.reset();
+                btnSubmit.disabled = false;
 
-                console.error(e);
+            }).catch((err) => {
+
+                console.error(err);
 
             });
         });
@@ -115,8 +121,8 @@ class UserController
                 resolve(fileReader.result);
             };
 
-            fileReader.onerror = (e) => {
-                reject(e);
+            fileReader.onerror = (err) => {
+                reject(err);
             };
 
             if(file)
