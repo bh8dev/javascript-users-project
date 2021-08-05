@@ -37,8 +37,15 @@ class UserController
     getValues()
     {
         let user = {};
+        let isValidForm = true;
         
         [...this.form.elements].forEach((field, index) => {
+
+            if(['name', 'email', 'password'].indexOf(field.name) > -1 && !field.value)
+            {
+                field.parentElement.classList.add('has-error');
+                isValidForm = false;
+            }
 
             if (field.name === 'gender')
             {
@@ -57,7 +64,12 @@ class UserController
             }
 
         });
-    
+        
+        if(!isValidForm)
+        {
+            return false;
+        }
+        
         return new User(
             user.name,
             user.gender,
