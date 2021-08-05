@@ -73,8 +73,6 @@ class UserController
     addNewTableDataIntoTable(user)
     {
         let tr = document.createElement('tr');
-        let date = new Date();
-        let today = this.addZerosToDate(date.getDay()) + '/' + this.addZerosToDate((date.getMonth() + 1)) + '/' + date.getFullYear();
     
         tr.innerHTML = 
         `
@@ -85,7 +83,7 @@ class UserController
                 <td>${user.name}</td>
                 <td>${user.email}</td>
                 <td>${(user.admin) ? 'Sim' : 'Não'}</td>
-                <td>${(today <= 9) ? '0' + today : today}</td>
+                <td>${Utils.dateFormat(user.register)}</td>
                 <td>
                     <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
                     <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
@@ -93,11 +91,6 @@ class UserController
             </tr>
         `;
         this.tableTbody.appendChild(tr);
-    }
-
-    addZerosToDate(date)
-    {
-        return (date <= 9) ? '0' + date : date;
     }
 
     getPhoto()
