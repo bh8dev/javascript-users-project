@@ -18,6 +18,11 @@ class UserController
 
             let values = this.getValues();
 
+            if(! values)
+            {
+                return false;
+            }
+
             this.getPhoto().then(result => {
 
                 values.photo = result;
@@ -65,7 +70,7 @@ class UserController
 
         });
         
-        if(!isValidForm)
+        if(! isValidForm)
         {
             return false;
         }
@@ -85,6 +90,8 @@ class UserController
     addNewTableDataIntoTable(user)
     {
         let tr = document.createElement('tr');
+
+        tr.dataset.user = JSON.stringify(user);
     
         tr.innerHTML = 
         `
@@ -103,6 +110,8 @@ class UserController
             </tr>
         `;
         this.tableTbody.appendChild(tr);
+
+        this.updateUserStatistics();
     }
 
     getPhoto()
@@ -141,5 +150,31 @@ class UserController
             }
 
         });
+    }
+
+    updateUserStatistics()
+    {
+        let usersCounter = 0;
+        let adminUsersCounter = 0;
+
+        [...this.tableTbody.children].forEach(tr => {
+    
+            usersCounter++;
+
+            let user = JSON.parse(tr.dataset.user);
+
+            if(user._admin)
+            {
+                adminUsersCounter++;
+            }
+
+        });
+        this.updateElements(usersCounter, adminUsersCounter);
+    }
+
+    updateElements(users, admins)
+    {
+        document.getElementById('users-counter').innerHTML = users;
+        document.getElementById('admin-users-counter').innerHTML = admins;
     }
 }
