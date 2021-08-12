@@ -112,26 +112,36 @@ class UserController
         `;
 
         tr.querySelector('.btn-edit').addEventListener("click", event => {
-
+            
+            event.preventDefault();
+            
             let usersJson = JSON.parse(tr.dataset.user);
             let form = document.getElementById('form-user-update');
 
             for (const name in usersJson)
             {
-                let field = form.querySelector("[name=" + name.replace('_', '') + "]");
-
+                let field = form.querySelector(" [name=" + name.replace('_', '') + "] ");
+                
                 if(field)
                 {
-                    if(field.type === 'file') continue;
-                    
-                    field.value = usersJson[name];
+                    switch (field.type)
+                    {
+                        case 'file':
+                            continue;
+                        case 'radio':
+                            field = form.querySelector(" [name=" + name.replace('_', '') + "][value=" + usersJson[name] + "] ");
+                            field.checked = true;
+                            break;
+                        case 'checkbox':
+                            field.checked = usersJson[name];
+                            break;
+                        default:
+                            field.value = usersJson[name];
+                    }
                 }
             }
-
             this.showUpdatePanel();
-
         });
-
         this.tableTbody.appendChild(tr);
 
         this.updateUserStatistics();
