@@ -1,8 +1,9 @@
 class UserController
 {
-    constructor(formId, tableTbodyId)
+    constructor(formCreate, formUpdate, tableTbodyId)
     {
-        this.form = document.getElementById(formId);
+        this.formCreate = document.getElementById(formCreate);
+        this.formUpdate = document.getElementById(formUpdate);
         this.tableTbody = document.getElementById(tableTbodyId);
         this.onSubmit();
         this.onEditOrCancel();
@@ -10,14 +11,14 @@ class UserController
 
     onSubmit()
     {
-        this.form.addEventListener('submit', event => {
+        this.formCreate.addEventListener('submit', event => {
 
             event.preventDefault();
 
-            let btnSubmit = this.form.querySelector("[type='submit']");
+            let btnSubmit = this.formCreate.querySelector("[type='submit']");
             btnSubmit.disabled = true;
 
-            let values = this.getValues();
+            let values = this.getValues(this.formCreate);
 
             if(! values)
             {
@@ -29,7 +30,7 @@ class UserController
                 values.photo = result;
                 this.addNewTableDataIntoTable(values);
 
-                this.form.reset();
+                this.formCreate.reset();
                 btnSubmit.disabled = false;
 
             }).catch((err) => {
@@ -40,12 +41,12 @@ class UserController
         });
     }
 
-    getValues()
+    getValues(form)
     {
         let user = {};
         let isValidForm = true;
         
-        [...this.form.elements].forEach((field, index) => {
+        [...form.elements].forEach((field, index) => {
 
             if(['name', 'email', 'password'].indexOf(field.name) > -1 && !field.value)
             {
@@ -111,37 +112,8 @@ class UserController
             </tr>
         `;
 
-        tr.querySelector('.btn-edit').addEventListener("click", event => {
-            
-            event.preventDefault();
-            
-            let usersJson = JSON.parse(tr.dataset.user);
-            let form = document.getElementById('form-user-update');
-
-            for (const name in usersJson)
-            {
-                let field = form.querySelector(" [name=" + name.replace('_', '') + "] ");
-                
-                if(field)
-                {
-                    switch (field.type)
-                    {
-                        case 'file':
-                            continue;
-                        case 'radio':
-                            field = form.querySelector(" [name=" + name.replace('_', '') + "][value=" + usersJson[name] + "] ");
-                            field.checked = true;
-                            break;
-                        case 'checkbox':
-                            field.checked = usersJson[name];
-                            break;
-                        default:
-                            field.value = usersJson[name];
-                    }
-                }
-            }
-            this.showUpdatePanel();
-        });
+        this.addEventsToTableRow(tr);
+        
         this.tableTbody.appendChild(tr);
 
         this.updateUserStatistics();
@@ -153,7 +125,7 @@ class UserController
 
             let fileReader = new FileReader();
 
-            let elements = [...this.form.elements].filter(element => {
+            let elements = [...this.formCreate.elements].filter(element => {
 
                 if(element.name === 'photo')
                 {
@@ -227,6 +199,78 @@ class UserController
     {
         document.querySelector('#box-user-update .btn-cancel').addEventListener("click", event => {
             this.showCreatePanel();
+        });
+
+        this.formUpdate.addEventListener('submit', event => {
+
+            event.preventDefault();
+
+            let btnSubmit = this.formUpdate.querySelector('[type=submit]');
+            btnSubmit.disabled = true;
+
+            let values = this.getValues(this.formUpdate);
+            
+            let rowIndex = this.formUpdate.dataset.tableRowIndex;
+
+            let tableRow = this.tableTbody.rows[rowIndex];
+
+            tableRow.dataset.user = JSON.stringify(values);
+
+            tableRow.innerHTML = 
+            `
+                <tr>
+                    <td>
+                        <img src="${values.photo}" alt="User Image" class="img-circle img-sm">
+                    </td>
+                    <td>${values.name}</td>
+                    <td>${values.email}</td>
+                    <td>${(values.admin) ? 'Sim' : 'Não'}</td>
+                    <td>${Utils.dateFormat(values.register)}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
+                        <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                    </td>
+                </tr>
+            `;
+            this.addEventsToTableRow(tableRow);
+            this.updateUserStatistics();
+        });
+    }
+
+    addEventsToTableRow(tableRow)
+    {
+        tableRow.querySelector('.btn-edit').addEventListener("click", event => {
+            
+            event.preventDefault();
+            
+            let usersJson = JSON.parse(tableRow.dataset.user);
+            let form = document.getElementById('form-user-update');
+
+            form.dataset.tableRowIndex = tableRow.sectionRowIndex;
+
+            for (const name in usersJson)
+            {
+                let field = form.querySelector(" [name=" + name.replace('_', '') + "] ");
+                
+                if(field)
+                {
+                    switch (field.type)
+                    {
+                        case 'file':
+                            continue;
+                        case 'radio':
+                            field = form.querySelector(" [name=" + name.replace('_', '') + "][value=" + usersJson[name] + "] ");
+                            field.checked = true;
+                            break;
+                        case 'checkbox':
+                            field.checked = usersJson[name];
+                            break;
+                        default:
+                            field.value = usersJson[name];
+                    }
+                }
+            }
+            this.showUpdatePanel();
         });
     }
 }
